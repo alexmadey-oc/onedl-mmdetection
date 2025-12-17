@@ -191,6 +191,8 @@ class ByteTracker(BaseTracker):
         labels = data_sample.pred_instances.labels
         scores = data_sample.pred_instances.scores
 
+        has_masks = hasattr(data_sample.pred_instances, 'masks')
+
         frame_id = metainfo.get('frame_id', -1)
         if frame_id == 0:
             self.reset()
@@ -202,6 +204,9 @@ class ByteTracker(BaseTracker):
             scores = scores[valid_inds]
             bboxes = bboxes[valid_inds]
             labels = labels[valid_inds]
+            if has_masks:
+                masks = data_sample.pred_instances.masks
+                masks = masks[valid_inds]
             num_new_tracks = bboxes.size(0)
             ids = torch.arange(self.num_tracks,
                                self.num_tracks + num_new_tracks).to(labels)
@@ -261,6 +266,14 @@ class ByteTracker(BaseTracker):
             first_unmatch_det_ids = first_det_ids[~valid]
             assert (first_unmatch_det_ids == -1).all()
 
+            if has_masks:
+
+                masks = data_sample.pred_instances.masks
+                first_det_masks = masks[first_det_inds]
+                second_det_masks = masks[second_det_inds]
+                first_match_det_masks = first_det_masks[valid]
+                first_unmatch_det_masks = first_det_masks[~valid]
+
             # 3. use unmatched detection bboxes from the first match to match
             # the unconfirmed tracks
             (tentative_match_track_inds,
@@ -310,6 +323,11 @@ class ByteTracker(BaseTracker):
                             dim=0)
             ids = torch.cat((ids, second_det_ids[valid]), dim=0)
 
+            if has_masks:
+                masks = torch.cat(
+                    (first_match_det_masks, first_unmatch_det_masks), dim=0)
+                masks = torch.cat((masks, second_det_masks[valid]), dim=0)
+
             # 6. assign new ids
             new_track_inds = ids == -1
             ids[new_track_inds] = torch.arange(
@@ -322,7 +340,8 @@ class ByteTracker(BaseTracker):
             bboxes=bboxes,
             scores=scores,
             labels=labels,
-            frame_ids=frame_id)
+            frame_ids=frame_id,
+            masks=masks if has_masks else None)
 
         # update pred_track_instances
         pred_track_instances = InstanceData()
@@ -330,5 +349,7 @@ class ByteTracker(BaseTracker):
         pred_track_instances.labels = labels
         pred_track_instances.scores = scores
         pred_track_instances.instances_id = ids
+        if has_masks:
+            pred_track_instances.masks = masks
 
         return pred_track_instances
