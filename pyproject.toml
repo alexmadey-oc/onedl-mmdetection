@@ -1,7 +1,7 @@
 
 [project]
 name = "onedl-mmdetection"
-version = "3.4.3"
+version = "3.4.4"
 description = "OneDL Detection Toolbox and Benchmark"
 readme = "README.md"
 authors = [
