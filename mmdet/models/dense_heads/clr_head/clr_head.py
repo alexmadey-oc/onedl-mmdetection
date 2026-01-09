@@ -21,8 +21,8 @@ try:
 except ImportError:
     logger: MMLogger = MMLogger.get_current_instance()
     logger.warning(
-        'NMS is not compiled. Most likely when installing the package cuda '
-        'was not available.\n'
+        'Line NMS is not compiled. Most likely when installing the package'
+        ' cuda was not available.\n'
         'This model cannot work without CUDA, therefore you need to recompile'
         ' the package with CUDA support.\n'
         'To make sure that the package is compiled with CUDA support use '
