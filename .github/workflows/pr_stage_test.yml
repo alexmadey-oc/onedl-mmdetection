@@ -75,12 +75,12 @@ jobs:
           format: markdown
           output: both
           hide_branch_rate: false
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: code-coverage-results.md
+      # - name: Add Coverage PR Comment
+      #   uses: marocchino/sticky-pull-request-comment@v2
+      #   if: github.event_name == 'pull_request'
+      #   with:
+      #     recreate: true
+      #     path: code-coverage-results.md
 
   build_gpu:
     runs-on: ubuntu-22.04
